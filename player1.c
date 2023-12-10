@@ -245,76 +245,110 @@ int checkWin(BoatLocation boats[], int size)
 
 void player1Turn(int client_socket, char player1Board[BOARD_SIZE][BOARD_SIZE], char player1EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player1Boats[BOAT_NUMBER])
 {
+    char turnDone[] = "TURN_DONE";
     printf("Player 1, it's your turn:\n");
     displayBoards(player1Board, player1EnemyBoard);
-
-    // Player 1 takes a shot
-    BoatLocation player1Shot;
-    getShotLocation(&player1Shot);
-
-    // Send Player 1's shot to Player 2
-    send(client_socket, &player1Shot, sizeof(player1Shot), 0);
-
-    // Receive the result of Player 1's shot from Player 2
-    ShotResult player1Result;
-    recv(client_socket, &player1Result, sizeof(player1Result), 0);
-
-    // Update Player 1's enemy board based on the result
-    updateBoard(player1EnemyBoard, player1Shot, player1Result.result, player1Boats, BOAT_NUMBER);
-
-    if (player1Result.result == 'D')
+    int firstRound = 1;
+    if (firstRound >= 1)
     {
-        printf("Player 1: You destroyed an enemy boat!\n");
-    }
-    else if (player1Result.result == 'O')
-    {
-        printf("Player 1: You hit an enemy boat!\n");
+        recv(client_socket, turnDone, sizeof(turnDone), 0);
     }
     else
     {
-        printf("Player 1: You missed!\n");
+        // Player 1 takes a shot
+        BoatLocation player1Shot;
+        getShotLocation(&player1Shot);
+
+        // Send Player 1's shot to Player 2
+        ssize_t send_result = send(client_socket, &player1Shot, sizeof(player1Shot), 0);
+        if (send_result == -1)
+        {
+            perror("error sending shot from Player2");
+            close(client_socket);
+            exit(EXIT_FAILURE);
+        }
+
+        // Receive the result of Player 1's shot from Player 2
+        ShotResult player1Result;
+        ssize_t recv_result = recv(client_socket, &player1Result, sizeof(player1Result), 0);
+
+        if (recv_result == -1)
+        {
+            perror("error recieving from player2");
+            close(client_socket);
+            exit(EXIT_FAILURE);
+        }
+        // Update Player 1's enemy board based on the result
+        updateBoard(player1EnemyBoard, player1Shot, player1Result.result, player1Boats, BOAT_NUMBER);
+
+        if (player1Result.result == 'D')
+        {
+            printf("Player 1: You destroyed an enemy boat!\n");
+        }
+        else if (player1Result.result == 'O')
+        {
+            printf("Player 1: You hit an enemy boat!\n");
+        }
+        else
+        {
+            printf("Player 1: You missed!\n");
+        }
+
+        // Signal to Player 2 that Player 1 has completed the turn
+
+        ssize_t send_turn_done = send(client_socket, turnDone, sizeof(turnDone), 0);
+        if (send_turn_done == -1 || send_turn_done == 0)
+        {
+            perror("Error receiving turn completion signal from Player 1");
+            close(client_socket);
+            exit(EXIT_FAILURE);
+        }
+        if (strcmp(turnDone, "TURN_DONE") != 0)
+        {
+            // Handle unexpected signal
+            printf("Unexpected signal from Player 1. Exiting the game.\n");
+            close(client_socket);
+            exit(EXIT_FAILURE);
+        }
+
+        // Now it's Player 1's turn to wait for Player 2's shot
+        printf("Player 1 is waiting for Player 2's shot...\n");
+        BoatLocation player2Shot;
+        recv(client_socket, &player2Shot, sizeof(player2Shot), 0);
+
+        // Process Player 2's shot and update the result accordingly
+        ShotResult player2Result = processShot(player2Shot, player1Boats, BOAT_NUMBER);
+        updateBoard(player1Board, player2Shot, player2Result.result, player1Boats, BOARD_SIZE);
+
+        if (player2Result.result == 'D')
+        {
+            printf("Player 2: You destroyed an enemy boat!\n");
+        }
+        else if (player2Result.result == 'O')
+        {
+            printf("Player 2: You hit an enemy boat!\n");
+        }
+        else
+        {
+            printf("Player 2: You missed!\n");
+        }
+
+        // Send the result of Player 2's shot back to Player 2
+        send(client_socket, &player2Result, sizeof(player2Result), 0);
+
+        // Wait for Player 2 to complete their turn
+        printf("Player 1 is waiting for Player 2 to complete the turn...\n");
+        recv(client_socket, turnDone, sizeof(turnDone), 0);
+        if (strcmp(turnDone, "TURN_DONE") != 0)
+        {
+            // Handle unexpected signal
+            printf("Unexpected signal from Player 1. Exiting the game.\n");
+            close(client_socket);
+            return;
+        }
     }
 
-    // Signal to Player 2 that Player 1 has completed the turn
-    char turnDone[] = "TURN_DONE";
-    send(client_socket, turnDone, sizeof(turnDone), 0);
-
-    // Now it's Player 1's turn to wait for Player 2's shot
-    printf("Player 1 is waiting for Player 2's shot...\n");
-    BoatLocation player2Shot;
-    recv(client_socket, &player2Shot, sizeof(player2Shot), 0);
-
-    // Process Player 2's shot and update the result accordingly
-    ShotResult player2Result = processShot(player2Shot, player1Boats, BOAT_NUMBER);
-    updateBoard(player1Board, player2Shot, player2Result.result, player1Boats, BOARD_SIZE);
-
-    if (player2Result.result == 'D')
-    {
-        printf("Player 1: You destroyed an enemy boat!\n");
-    }
-    else if (player2Result.result == 'O')
-    {
-        printf("Player 1: You hit an enemy boat!\n");
-    }
-    else
-    {
-        printf("Player 1: You missed!\n");
-    }
-
-    // Send the result of Player 2's shot back to Player 2
-    send(client_socket, &player2Result, sizeof(player2Result), 0);
-
-    // Wait for Player 2 to complete their turn
-    printf("Player 1 is waiting for Player 2 to complete the turn...\n");
-    char turnDoneAgain[] = "TURN_DONE";
-    recv(client_socket, turnDoneAgain, sizeof(turnDoneAgain), 0);
-    if (strcmp(turnDone, "TURN_DONE") != 0)
-    {
-        // Handle unexpected signal
-        printf("Unexpected signal from Player 1. Exiting the game.\n");
-        close(client_socket);
-        return;
-    }
+    firstRound++;
 }
 
 void playGame(int client_socket)
@@ -348,13 +382,7 @@ void playGame(int client_socket)
     {
         player1Turn(client_socket, player1Board, player1EnemyBoard, player1Boats);
 
-        // Check if Player 1 wins
-        gameOver1 = checkWin(player1Boats, BOAT_NUMBER);
-        if (gameOver1)
-        {
-            printf("Player 2 wins! Game over.\n");
-            break;
-        }
+        // Notify Player 2 to start their turn
     }
 
     close(client_socket);
