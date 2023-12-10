@@ -8,12 +8,12 @@
 #define BOARD_SIZE 8
 #define BOAT_NUMBER 4
 #define PORT 22101
-// gcc -o player1 player1.c -lsocket -std=c99
 
 typedef struct
 {
     int row;
     int col;
+    int size;
     int isDestroyed;
 } BoatLocation;
 
@@ -24,6 +24,7 @@ typedef struct
 } ShotResult;
 
 char board[BOARD_SIZE][BOARD_SIZE];
+
 void initializeBoard(char board[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < BOARD_SIZE; ++i)
@@ -50,6 +51,7 @@ void printBoard(char board[BOARD_SIZE][BOARD_SIZE])
         printf("\n");
     }
 }
+
 void drawBoat(BoatLocation boats[], int size, int playerNumber, char board[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < size; ++i)
@@ -112,7 +114,8 @@ void drawBoat(BoatLocation boats[], int size, int playerNumber, char board[BOARD
             printf("\n");
 
             boats[i].row = row;
-            boats[i].col = col; // Update the column index
+            boats[i].col = col;                  // Update the column index
+            boats[i].size = endColIdx - col + 1; // Store the size of the boat
 
         } while (boats[i].row < 0 || boats[i].row >= BOARD_SIZE || boats[i].col < 0 || boats[i].col >= BOARD_SIZE);
     }
@@ -178,9 +181,10 @@ ShotResult processShot(BoatLocation shot, BoatLocation boats[], int size)
             result.boatIndex = i;
             break;
         }
-        else if (boats[i].row == shot.row && boats[i].col == shot.col)
+        else if (boats[i].row <= shot.row && shot.row <= (boats[i].row + boats[i].size - 1) &&
+                 boats[i].col <= shot.col && shot.col <= (boats[i].col + boats[i].size - 1))
         {
-            // The boat was already destroyed
+            // The boat was hit but not destroyed
             result.result = 'O'; // 'O' for hit
             result.boatIndex = i;
             break;
@@ -189,6 +193,7 @@ ShotResult processShot(BoatLocation shot, BoatLocation boats[], int size)
 
     return result;
 }
+
 int checkWin(BoatLocation boats[], int size)
 {
     int allDestroyed = 1;
@@ -241,30 +246,42 @@ void getShotLocation(BoatLocation *shot)
 
 void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], char player2EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player2Boats[BOAT_NUMBER])
 {
+    char turnDone[] = "TURN_DONE";
     printf("Player 2 is waiting for Player 1's shot...\n");
     displayBoards(player2Board, player2EnemyBoard);
 
     BoatLocation player1Shot;
+    BoatLocation player2Shot;
 
-    recv(client_socket, &player1Shot, sizeof(player1Shot), 0);
+    ssize_t recv_result = recv(client_socket, &player1Shot, sizeof(player1Shot), 0);
+    if (recv_result == -1 || recv_result == 0)
+    {
+        perror("Error receiving shot from Player 1");
+        close(client_socket);
+        exit(EXIT_FAILURE);
+    }
 
     ShotResult player1Result = processShot(player1Shot, player2Boats, BOAT_NUMBER);
-    send(client_socket, &player1Result, sizeof(player1Result), 0);
+
+    updateBoard(player2Board, player2Shot, player1Result.result, player2Boats, BOARD_SIZE);
+    ssize_t send_result = send(client_socket, &player1Result, sizeof(player1Result), 0);
+    if (send_result == -1)
+    {
+        perror("Error sending result to Player 1");
+        close(client_socket);
+        exit(EXIT_FAILURE);
+    }
 
     // Wait for Player 1 to complete their turn
     printf("Player 2 is waiting for Player 1 to complete the turn...\n");
-    char turnDone[] = "TURN_DONE";
-    recv(client_socket, turnDone, sizeof(turnDone), 0);
-    if (strcmp(turnDone, "TURN_DONE") != 0)
+    ssize_t recv_turn_done = recv(client_socket, turnDone, sizeof(turnDone), 0);
+    if (recv_turn_done == -1 || recv_turn_done == 0)
     {
-        // Handle unexpected signal
-        printf("Unexpected signal from Player 1. Exiting the game.\n");
+        perror("Error receiving turn completion signal from Player 1");
         close(client_socket);
-        return;
+        exit(EXIT_FAILURE);
     }
-
     printf("Player 2, it's your turn:\n");
-    BoatLocation player2Shot;
     getShotLocation(&player2Shot);
     send(client_socket, &player2Shot, sizeof(player2Shot), 0);
 
@@ -274,11 +291,11 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
     // Update Player 1's enemy board based on the result
     updateBoard(player2EnemyBoard, player2Shot, player2Result.result, player2Boats, BOAT_NUMBER);
 
-    if (player1Result.result == 'D')
+    if (player2Result.result == 'D')
     {
         printf("Player 1: You destroyed an enemy boat!\n");
     }
-    else if (player1Result.result == 'O')
+    else if (player2Result.result == 'O')
     {
         printf("Player 1: You hit an enemy boat!\n");
     }
@@ -288,8 +305,8 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
     }
 
     // Signal to Player 2 that Player 1 has completed the turn
-    char turnDoneAgain[] = "TURN_DONE";
-    send(client_socket, turnDoneAgain, sizeof(turnDoneAgain), 0);
+
+    send(client_socket, turnDone, sizeof(turnDone), 0);
 }
 
 void playGame(int client_socket)
@@ -320,23 +337,12 @@ void playGame(int client_socket)
 
     int gameOver2 = 0;
     int gameStarted = 0;
+
     while (!gameOver2)
     {
-        if (!gameStarted)
-        {
-            // Player 2 has received the signal to start the game
-            printf("Player 2 received the signal to start the game!\n");
-            gameStarted = 1;
-        }
-        player2Turn(client_socket, player2Board, player2EnemyBoard, player2Boats);
+        player2Turn(client_socket, player2Board, player2EnemyBoard, player1Boats);
 
-        // Check if Player 2 wins
-        int gameOver2 = checkWin(player2Boats, BOAT_NUMBER);
-        if (gameOver2)
-        {
-            printf("Player 2 wins! Game over.\n");
-            break;
-        }
+        // Notify Player 2 to start their turn
     }
 
     close(client_socket);
