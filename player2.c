@@ -202,7 +202,7 @@ int checkWin(BoatLocation boats[], int size)
         }
     }
 
-    return allDestroyed; // Return 1 if all boats are destroyed, 0 otherwise
+    return allDestroyed;
 }
 
 void getShotLocation(BoatLocation *shot)
@@ -243,24 +243,12 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
 {
     printf("Player 2 is waiting for Player 1's shot...\n");
     displayBoards(player2Board, player2EnemyBoard);
+
     BoatLocation player1Shot;
 
     recv(client_socket, &player1Shot, sizeof(player1Shot), 0);
 
     ShotResult player1Result = processShot(player1Shot, player2Boats, BOAT_NUMBER);
-    updateBoard(player2Board, player1Shot, player1Result.result, player2Boats, BOAT_NUMBER);
-    if (player1Result.result == 'D')
-    {
-        printf("Player 1: You destroyed an enemy boat!\n");
-    }
-    else if (player1Result.result == 'O')
-    {
-        printf("Player 1: You hit an enemy boat!\n");
-    }
-    else
-    {
-        printf("Player 1: You missed!\n");
-    }
     send(client_socket, &player1Result, sizeof(player1Result), 0);
 
     // Wait for Player 1 to complete their turn
@@ -286,11 +274,11 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
     // Update Player 1's enemy board based on the result
     updateBoard(player2EnemyBoard, player2Shot, player2Result.result, player2Boats, BOAT_NUMBER);
 
-    if (player2Result.result == 'D')
+    if (player1Result.result == 'D')
     {
         printf("Player 1: You destroyed an enemy boat!\n");
     }
-    else if (player2Result.result == 'O')
+    else if (player1Result.result == 'O')
     {
         printf("Player 1: You hit an enemy boat!\n");
     }
@@ -299,6 +287,7 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
         printf("Player 1: You missed!\n");
     }
 
+    // Signal to Player 2 that Player 1 has completed the turn
     char turnDoneAgain[] = "TURN_DONE";
     send(client_socket, turnDoneAgain, sizeof(turnDoneAgain), 0);
 }
@@ -310,13 +299,8 @@ void playGame(int client_socket)
 
     initializeBoard(player2Board);
     initializeBoard(player2EnemyBoard);
-
     BoatLocation player1Boats[BOAT_NUMBER];
     BoatLocation player2Boats[BOAT_NUMBER];
-
-    memset(player1Boats, 0, sizeof(player1Boats));
-    memset(player2Boats, 0, sizeof(player2Boats));
-
     drawBoat(player2Boats, BOAT_NUMBER, 2, player2Board);
 
     printf("Player 2 is waiting for Player 1 to start the game...\n");
@@ -334,9 +318,9 @@ void playGame(int client_socket)
         return;
     }
 
+    int gameOver2 = 0;
     int gameStarted = 0;
-
-    while (1)
+    while (!gameOver2)
     {
         if (!gameStarted)
         {
@@ -346,10 +330,11 @@ void playGame(int client_socket)
         }
         player2Turn(client_socket, player2Board, player2EnemyBoard, player2Boats);
 
+        // Check if Player 2 wins
         int gameOver2 = checkWin(player2Boats, BOAT_NUMBER);
         if (gameOver2)
         {
-            printf("Player 1 wins! Game over.\n");
+            printf("Player 2 wins! Game over.\n");
             break;
         }
     }
