@@ -342,14 +342,14 @@ void playGame(int client_socket)
         close(client_socket);
         return;
     }
-    int gameStarted = 0;
 
-    while (1)
+    int gameOver1 = 0;
+    while (!gameOver1)
     {
         player1Turn(client_socket, player1Board, player1EnemyBoard, player1Boats);
 
         // Check if Player 1 wins
-        int gameOver1 = checkWin(player1Boats, BOAT_NUMBER);
+        gameOver1 = checkWin(player1Boats, BOAT_NUMBER);
         if (gameOver1)
         {
             printf("Player 2 wins! Game over.\n");
