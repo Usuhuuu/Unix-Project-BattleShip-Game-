@@ -246,7 +246,7 @@ void getShotLocation(BoatLocation *shot)
 
 void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], char player2EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player2Boats[BOAT_NUMBER])
 {
-    char turnDone[] = "TURN_DONE";
+    char turnDone[256] = "TURN_DONE";
     printf("Player 2 is waiting for Player 1's shot...\n");
     displayBoards(player2Board, player2EnemyBoard);
 
