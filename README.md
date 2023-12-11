@@ -6,8 +6,23 @@
 
 Boat Battle Game is a two-player turn-based strategy game where players draw boats on a grid and take turns shooting at each other's boards. The game continues until one player destroys all the opponent's boats or after a set number of rounds.
 
-## Code Structure
 
+## Code Structure
+### Header Files
+- stdio.h, stdlib.h: Standard input/output and standard library functions.
+- unistd.h: Symbolic constants and types related to system calls.
+- string.h: String manipulation functions.
+- sys/socket.h: Socket-related functions.
+- netinet/in.h: Internet address family and structures.
+
+### Constants
+- BOARD_SIZE: Size of the game board (8x8).
+- BOAT_NUMBER: Number of boats each player has.
+- PORT: Communication port for socket connections.
+
+### Structs
+- BoatLocation: Stores boat information (row, column, size, whether destroyed).
+- ShotResult: Stores the result of a shot (hit, miss, destroyed, boat index).
 
 ### 2. player1.c and player2.c
 
