@@ -7,20 +7,20 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Code Structure](#Code Structure)
-- [Game Initialization](#Game Initialization)
-- [Gameplay Flow](#Gameplay Flow)
-- [Running the Game](#Running the Game)
-- [Follow On-Screen Instructions](#Follow On-Screen Instructions)
-- [Game Outcome](#Game Outcome)
+- [Code Structure](#code-structure)
+- [Game Initialization](#game-initialization)
+- [Gameplay Flow](#gameplay-flow)
+- [Running the Game](#running-the-game)
+- [Follow On-Screen Instructions](#follow-on-screen-instructions)
+- [Game Outcome](#game-outcome)
 
-## Introduction
+## Introduction <a name="introduction"></a>
 
 Objective: Implement a two-player Battleship game in C using sockets for communication.
 Players: Player 1 and Player 2.
 Features: Drawing boats, taking turns, tracking hits and misses, and determining the winner.
 
-## Code Structure
+## Code Structure <a name="code-structure"></a>
 ### Header Files
 - stdio.h, stdlib.h: Standard input/output and standard library functions.
 - unistd.h: Symbolic constants and types related to system calls.
@@ -39,7 +39,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 
 ### 2. player1.c and player2.c
 
-#### Game Initialization:
+#### Game Initialization <a name="game-initialization"></a>:
 
 - `initializeBoard`: Initializes the game boards.
 - `printBoard`: Prints the current state of the board.
@@ -63,7 +63,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 
 - `playGame`: Main game loop where players take turns until a win condition is met.
 
-## Gameplay Flow
+## Gameplay Flow <a name="gameplay-flow"></a>
 
 1. **Condision of starting game:**
    - Two player must connect to smae port.
@@ -80,7 +80,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
    - The game ends when all boats of one player are destroyed or after a set number of rounds.
    - The player with the most hits at the end wins.
 
-## Running the Game
+## Running the Game <a name="running-the-game"></a>
 ```bash
 gcc -o player2 player2.c -lsocket -std=c99
 gcc -o player1 player1.c -lsocket -std=c99
@@ -92,12 +92,12 @@ gcc -o player1 player1.c -lsocket -std=c99
 these code must open on different terminal.
 
 
-## Follow On-Screen Instructions:
+## Follow On-Screen Instructions <a name="follow-on-screen-instructions"></a>
 
 - Input boat locations when prompted.
 - Take turns shooting at each other's boards.
 
-## Game Outcome:
+## Game Outcome <a name="game-outcome"></a>
 - Our game is a standard turn-based Battleship game where players take shots at each other's boards, and the state of the boards is updated after each turn. The game continues until one player sinks all the ships of the other player.
 - The game ends based on boat destruction or the number of rounds.
 - The winner is determined, and the result is displayed.
