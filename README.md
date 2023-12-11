@@ -2,10 +2,23 @@
 ###22101191우수흐바야르
 ###22101219테리겔
 
-## Introduction
-
 Boat Battle Game is a two-player turn-based strategy game where players draw boats on a grid and take turns shooting at each other's boards. The game continues until one player destroys all the opponent's boats or after a set number of rounds.
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Setup](#setup)
+- [How to Play](#how-to-play)
+- [Code Structure](#code-structure)
+- [Compilation](#compilation)
+- [Usage](#usage)
+- [License](#license)
+
+## Introduction
+
+Objective: Implement a two-player Battleship game in C using sockets for communication.
+Players: Player 1 and Player 2.
+Features: Drawing boats, taking turns, tracking hits and misses, and determining the winner.
 
 ## Code Structure
 ### Header Files
