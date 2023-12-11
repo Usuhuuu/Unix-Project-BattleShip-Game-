@@ -7,11 +7,11 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Code Structure](#code-structure)
+
 - [Program features and descriptions](#game-initialization)
 - [Running the Game](#running-the-game)
 - [Follow On-Screen Instructions](#follow-on-screen-instructions)
-- [Game Outcome](#game-outcome)
+
 
 ## Introduction <a name="introduction"></a>
 
@@ -19,7 +19,7 @@ Objective: Implement a two-player Battleship game in C using sockets for communi
 Players: Player 1 and Player 2.
 Features: Drawing boats, taking turns, tracking hits and misses, and determining the winner.
 
-## Code Structure <a name="code-structure"></a>
+## Code Structure
 ### Header Files
 - `stdio.h, stdlib.h`: Standard input/output and standard library functions.
 - `unistd.h: Symbolic` constants and types related to system calls.
