@@ -7,7 +7,6 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 ## Table of Contents
 
 - [Introduction](#introduction)
-
 - [Program features and descriptions](#game-initialization)
 - [Running the Game](#running-the-game)
 - [Follow On-Screen Instructions](#follow-on-screen-instructions)
