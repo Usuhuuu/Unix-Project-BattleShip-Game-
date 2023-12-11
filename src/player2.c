@@ -261,19 +261,6 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
 
     send(client_socket, turnDone, sizeof(turnDone), 0);
 }
-int countRemainingBoats(BoatLocation boats[], int size)
-{
-    // Count the number of remaining boats
-    int remainingBoats = 0;
-    for (int i = 0; i < size; ++i)
-    {
-        if (!boats[i].isDestroyed)
-        {
-            remainingBoats++;
-        }
-    }
-    return remainingBoats;
-}
 void playGame(int client_socket)
 {
     char player2Board[BOARD_SIZE][BOARD_SIZE];
