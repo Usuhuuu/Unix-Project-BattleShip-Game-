@@ -61,7 +61,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 #### Turn Implementation:
 
 - `player1Turn` and `player2Turn`: Implement turns for Player 1 and Player 2.
-- `countRemainingBoats`: Counts the number of remaining boats for a player.
+
 
 #### Main Game Loop:
 
