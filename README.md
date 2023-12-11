@@ -22,20 +22,20 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 
 ## Code Structure <a name="code-structure"></a>
 ### Header Files
-- stdio.h, stdlib.h: Standard input/output and standard library functions.
-- unistd.h: Symbolic constants and types related to system calls.
-- string.h: String manipulation functions.
-- sys/socket.h: Socket-related functions.
-- netinet/in.h: Internet address family and structures.
+- `stdio.h, stdlib.h`: Standard input/output and standard library functions.
+- `unistd.h: Symbolic` constants and types related to system calls.
+- `string.h`: String manipulation functions.
+- `sys/socket.h`: Socket-related functions.
+- `netinet/in.h`: Internet address family and structures.
 
 ### Constants
-- BOARD_SIZE: Size of the game board (8x8).
-- BOAT_NUMBER: Number of boats each player has.
-- PORT: Communication port for socket connections.
+- `BOARD_SIZE`: Size of the game board (8x8).
+- `BOAT_NUMBER`: Number of boats each player has.
+- `PORT`: Communication port for socket connections.
 
 ### Structs
-- BoatLocation: Stores boat information (row, column, size, whether destroyed).
-- ShotResult: Stores the result of a shot (hit, miss, destroyed, boat index).
+- `BoatLocation`: Stores boat information (row, column, size, whether destroyed).
+- `ShotResult`: Stores the result of a shot (hit, miss, destroyed, boat index).
 
 ### 2. player1.c and player2.c <a name="game-initialization"></a>:
 
