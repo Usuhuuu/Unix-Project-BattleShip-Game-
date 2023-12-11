@@ -9,7 +9,6 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 - [Introduction](#introduction)
 - [Code Structure](#code-structure)
 - [player1.c and player2.c](#game-initialization)
-- [Gameplay Flow](#gameplay-flow)
 - [Running the Game](#running-the-game)
 - [Follow On-Screen Instructions](#follow-on-screen-instructions)
 - [Game Outcome](#game-outcome)
@@ -68,23 +67,6 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 #### Main Game Loop:
 
 - `playGame`: Main game loop where players take turns until a win condition is met.
-
-## Gameplay Flow <a name="gameplay-flow"></a>
-
-1. **Condision of starting game:**
-   - Two player must connect to smae port.
-   - Connect from different terminal.
-3. **Drawing Boats:**
-   - Players take turns drawing boats on their boards.
-   - Input the boat location in the format: `boatNumber:startCell:endCell`.
-
-4. **Taking Turns:**
-   - Players alternate turns shooting at each other's boards.
-   - Input the target location in the format: `columnNumber:rowNumber` (e.g., A1).
-
-5. **Game End:**
-   - The game ends when all boats of one player are destroyed or after a set number of rounds.
-   - The player with the most hits at the end wins.
 
 ## Running the Game <a name="running-the-game"></a>
 ```bash
