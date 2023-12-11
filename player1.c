@@ -7,8 +7,8 @@
 
 #define BOARD_SIZE 8
 #define BOAT_NUMBER 4
-#define PORT 22101
-
+#define PORT 22111
+//gcc -o player2 player2.c -lsocket -std=c99
 typedef struct
 {
     long long int row;
@@ -227,28 +227,12 @@ void getShotLocation(BoatLocation *shot)
         }
     } while (shot->row < 0 || shot->row >= BOARD_SIZE || shot->col < 0 || shot->col >= BOARD_SIZE);
 }
-int checkWin(BoatLocation boats[], int size)
-{
-    // Check if all boats are destroyed
-    for (int i = 0; i < size; ++i)
-    {
-        if (boats[i].isDestroyed == 0)
-        {
-            return 0; // Not all boats are destroyed
-        }
-    }
-    return 1; // All boats are destroyed
-}
 static int firstRound = 0;
 void player1Turn(int client_socket, char player1Board[BOARD_SIZE][BOARD_SIZE], char player1EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player1Boats[BOAT_NUMBER])
 {
     char turnDone[256] = "TURN_DONE";
     printf("Player 1, it's your turn:\n");
     displayBoards(player1Board, player1EnemyBoard);
-    if (firstRound > 1)
-    {
-        recv(client_socket, turnDone, sizeof(turnDone), 0);
-    }
 
     // Player 1 takes a shot
 
@@ -284,6 +268,20 @@ void player1Turn(int client_socket, char player1Board[BOARD_SIZE][BOARD_SIZE], c
 
     firstRound++;
 }
+int countRemainingBoats(BoatLocation boats[], int size)
+{
+    // Count the number of remaining boats
+    int remainingBoats = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        if (!boats[i].isDestroyed)
+        {
+            remainingBoats++;
+        }
+    }
+    return remainingBoats;
+}
+static int winValue = 4;
 
 void playGame(int client_socket)
 {
@@ -310,13 +308,42 @@ void playGame(int client_socket)
         close(client_socket);
         return;
     }
-
+    int player1Hits = 0;
+    int player2Hits = 0;
     int gameOver1 = 0;
     while (!gameOver1)
     {
         player1Turn(client_socket, player1Board, player1EnemyBoard, player1Boats);
 
-        // Notify Player 2 to start their turn
+        int totalRounds = 30;
+
+        totalRounds--;
+
+        printf("Total Round %d\n", totalRounds);
+
+        // Check if Player 1 has won
+        if (totalRounds == 0)
+        {
+            // Compare the hits to determine the winner
+            if (player1Hits > player2Hits)
+            {
+                printf("Player 1 Wins!\n");
+                send(client_socket, "PLAYER1_WIN", sizeof("PLAYER1_WIN"), 0);
+            }
+            else if (player2Hits > player1Hits)
+            {
+                printf("Player 2 Wins!\n");
+                send(client_socket, "PLAYER2_WIN", sizeof("PLAYER2_WIN"), 0);
+            }
+            else
+            {
+                printf("It's a Tie!\n");
+                send(client_socket, "TIE", sizeof("TIE"), 0);
+            }
+
+            // End the game loop
+            break;
+        }
     }
 
     close(client_socket);
