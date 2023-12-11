@@ -8,7 +8,7 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 
 - [Introduction](#introduction)
 - [Code Structure](#code-structure)
-- [player1.c and player2.c](#game-initialization)
+- [Program features and descriptions](#game-initialization)
 - [Running the Game](#running-the-game)
 - [Follow On-Screen Instructions](#follow-on-screen-instructions)
 - [Game Outcome](#game-outcome)
@@ -40,7 +40,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 
 
 
-### 2. player1.c and player2.c <a name="game-initialization"></a>:
+### 2. Program features and descriptions <a name="game-initialization"></a>:
 
 #### Game Initialization:
 
