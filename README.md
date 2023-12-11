@@ -27,14 +27,7 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 - `string.h`: String manipulation functions.
 - `sys/socket.h`: Socket-related functions.
 - `netinet/in.h`: Internet address family and structures.
-- ```c
-  #include <stdio.h>
-   #include <stdlib.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <sys/socket.h>
-   #include <netinet/in.h>
-  ```
+
 
 ### Constants
 - `BOARD_SIZE`: Size of the game board (8x8).
@@ -44,6 +37,8 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 ### Structs
 - `BoatLocation`: Stores boat information (row, column, size, whether destroyed).
 - `ShotResult`: Stores the result of a shot (hit, miss, destroyed, boat index).
+- <img width="419" alt="Screenshot 2023-12-11 at 3 55 36 PM" src="https://github.com/Usuhuuu/Unix-Project-BattleShip-Game-/assets/101633545/b1cdda35-8be8-47ae-8006-4a3850b7f58f">
+
 
 
 ### 2. player1.c and player2.c <a name="game-initialization"></a>:
