@@ -8,7 +8,7 @@ Boat Battle Game is a two-player turn-based strategy game where players draw boa
 
 - [Introduction](#introduction)
 - [Code Structure](#code-structure)
-- [Game Initialization](#game-initialization)
+- [player1.c and player2.c](#game-initialization)
 - [Gameplay Flow](#gameplay-flow)
 - [Running the Game](#running-the-game)
 - [Follow On-Screen Instructions](#follow-on-screen-instructions)
@@ -37,9 +37,9 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 - BoatLocation: Stores boat information (row, column, size, whether destroyed).
 - ShotResult: Stores the result of a shot (hit, miss, destroyed, boat index).
 
-### 2. player1.c and player2.c
+### 2. player1.c and player2.c <a name="game-initialization"></a>:
 
-#### Game Initialization <a name="game-initialization"></a>:
+#### Game Initialization:
 
 - `initializeBoard`: Initializes the game boards.
 - `printBoard`: Prints the current state of the board.
