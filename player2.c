@@ -7,7 +7,7 @@
 
 #define BOARD_SIZE 8
 #define BOAT_NUMBER 4
-#define PORT 22101
+#define PORT 22111
 
 typedef struct
 {
@@ -190,22 +190,6 @@ ShotResult processShot(BoatLocation shot, BoatLocation boats[], int size)
     return result;
 }
 
-int checkWin(BoatLocation boats[], int size)
-{
-    int allDestroyed = 1;
-
-    for (int i = 0; i < size; ++i)
-    {
-        if (boats[i].isDestroyed == 0)
-        {
-            allDestroyed = 0;
-            break;
-        }
-    }
-
-    return allDestroyed;
-}
-
 void getShotLocation(BoatLocation *shot)
 {
     do
@@ -277,7 +261,19 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
 
     send(client_socket, turnDone, sizeof(turnDone), 0);
 }
-
+int countRemainingBoats(BoatLocation boats[], int size)
+{
+    // Count the number of remaining boats
+    int remainingBoats = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        if (!boats[i].isDestroyed)
+        {
+            remainingBoats++;
+        }
+    }
+    return remainingBoats;
+}
 void playGame(int client_socket)
 {
     char player2Board[BOARD_SIZE][BOARD_SIZE];
@@ -285,14 +281,19 @@ void playGame(int client_socket)
 
     initializeBoard(player2Board);
     initializeBoard(player2EnemyBoard);
+
+    // Draw boats for Player 2
     BoatLocation player1Boats[BOAT_NUMBER];
     BoatLocation player2Boats[BOAT_NUMBER];
     drawBoat(player2Boats, BOAT_NUMBER, 2, player2Board);
 
     printf("Player 2 is waiting for Player 1 to start the game...\n");
 
+    // Signal that Player 2 is ready
     char confirmation[] = "READY";
     send(client_socket, confirmation, sizeof(confirmation), 0);
+
+    // Receive the signal to start the game
     char startGameSignal[10];
     recv(client_socket, &startGameSignal, sizeof(startGameSignal), 0);
 
@@ -303,15 +304,42 @@ void playGame(int client_socket)
         close(client_socket);
         return;
     }
-
+    int player1Hits = 0;
+    int player2Hits = 0;
     int gameOver2 = 0;
-    int gameStarted = 0;
 
     while (!gameOver2)
     {
         player2Turn(client_socket, player2Board, player2EnemyBoard, player1Boats);
+        int totalRounds = 30;
 
-        // Notify Player 2 to start their turn
+        totalRounds--;
+
+        printf("Total Round %d\n", totalRounds);
+
+        // Check if Player 1 has won
+        if (totalRounds == 0)
+        {
+            // Compare the hits to determine the winner
+            if (player1Hits > player2Hits)
+            {
+                printf("Player 1 Wins!\n");
+                send(client_socket, "PLAYER1_WIN", sizeof("PLAYER1_WIN"), 0);
+            }
+            else if (player2Hits > player1Hits)
+            {
+                printf("Player 2 Wins!\n");
+                send(client_socket, "PLAYER2_WIN", sizeof("PLAYER2_WIN"), 0);
+            }
+            else
+            {
+                printf("It's a Tie!\n");
+                send(client_socket, "TIE", sizeof("TIE"), 0);
+            }
+
+            // End the game loop
+            break;
+        }
     }
 
     close(client_socket);
