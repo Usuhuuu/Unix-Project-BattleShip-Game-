@@ -138,7 +138,7 @@ void displayBoards(char playerBoard[BOARD_SIZE][BOARD_SIZE], char enemyBoard[BOA
 
 void updateBoard(char board[BOARD_SIZE][BOARD_SIZE], BoatLocation shot, char result, BoatLocation boats[], int size)
 {
-    // Check if the shot hit a boat
+    
     int hitBoatIndex = -1;
     for (int i = 0; i < size; ++i)
     {
@@ -168,7 +168,7 @@ ShotResult processShot(BoatLocation shot, BoatLocation boats[], int size)
     ShotResult result;
 
     // Initialize result
-    result.result = 'M'; // Default to miss
+    result.result = 'M'; 
     result.boatIndex = -1;
 
     // Check if the shot hit a boat
@@ -227,6 +227,8 @@ void getShotLocation(BoatLocation *shot)
         }
     } while (shot->row < 0 || shot->row >= BOARD_SIZE || shot->col < 0 || shot->col >= BOARD_SIZE);
 }
+
+
 static int firstRound = 0;
 void player1Turn(int client_socket, char player1Board[BOARD_SIZE][BOARD_SIZE], char player1EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player1Boats[BOAT_NUMBER])
 {
@@ -270,7 +272,7 @@ void player1Turn(int client_socket, char player1Board[BOARD_SIZE][BOARD_SIZE], c
 }
 int countRemainingBoats(BoatLocation boats[], int size)
 {
-    // Count the number of remaining boats
+   
     int remainingBoats = 0;
     for (int i = 0; i < size; ++i)
     {
@@ -291,7 +293,7 @@ void playGame(int client_socket)
     initializeBoard(player1Board);
     initializeBoard(player1EnemyBoard);
 
-    // Draw boats for Player 1
+    
     BoatLocation player1Boats[BOAT_NUMBER];
     BoatLocation player2Boats[BOAT_NUMBER];
     drawBoat(player1Boats, BOAT_NUMBER, 1, player1Board);
@@ -303,7 +305,7 @@ void playGame(int client_socket)
     recv(client_socket, &notification, sizeof(notification), 0);
     if (strcmp(notification, "READY") != 0)
     {
-        // Handle unexpected notification
+      
         printf("Unexpected notification from Player 2. Exiting the game.\n");
         close(client_socket);
         return;
