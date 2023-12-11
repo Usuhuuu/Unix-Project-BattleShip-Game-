@@ -36,6 +36,8 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 ### Structs
 - `BoatLocation`: Stores boat information (row, column, size, whether destroyed).
 - `ShotResult`: Stores the result of a shot (hit, miss, destroyed, boat index).
+- <img width="419" alt="Screenshot 2023-12-11 at 3 55 36 PM" src="https://github.com/Usuhuuu/Unix-Project-BattleShip-Game-/assets/101633545/7a1a421c-1d3d-4189-b9fa-077f0ccb38a1">
+
 
 ### 2. player1.c and player2.c <a name="game-initialization"></a>:
 
@@ -43,6 +45,8 @@ Features: Drawing boats, taking turns, tracking hits and misses, and determining
 
 - `initializeBoard`: Initializes the game boards.
 - `printBoard`: Prints the current state of the board.
+- <img width="424" alt="Screenshot 2023-12-11 at 3 56 39 PM" src="https://github.com/Usuhuuu/Unix-Project-BattleShip-Game-/assets/101633545/2280cb64-382f-40fd-ac35-619f1c829327">
+
 
 #### Drawing Boats:
 
