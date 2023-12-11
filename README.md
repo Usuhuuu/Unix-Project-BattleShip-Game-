@@ -90,7 +90,7 @@ these code must open on different terminal.
 - The winner is determined, and the result is displayed.
 
 
-## 1. Player's Board (Your Board):
+### 1. Player's Board (Your Board):
 
 Represented as an 8x8 grid.
 Each cell on the player's board can be in one of two states:
@@ -101,9 +101,13 @@ Each cell on the player's board can be in one of two states:
 
 
 
- ## 2. Opponent's Board (Enemy Board):
+ ### 2. Opponent's Board (Enemy Board):
 
 Also represented as an 8x8 grid.
 Each cell on the opponent's board can be in one of two states:
 ‘point’: Represents water. This is the default state for unoccupied cells and cells where the opponent has not yet targeted.
 'X': Represents a hit. This symbol is used to mark cells where the player has successfully targeted and hit one of the opponent's ships.
+
+
+## Conclusions and impressions<a name="Conclusion-and-impressions"></a>
+
