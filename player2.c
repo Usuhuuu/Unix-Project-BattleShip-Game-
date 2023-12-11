@@ -11,8 +11,8 @@
 
 typedef struct
 {
-    int row;
-    int col;
+    long long int row;
+    long long int col;
     int size;
     int isDestroyed;
 } BoatLocation;
@@ -148,17 +148,13 @@ void updateBoard(char board[BOARD_SIZE][BOARD_SIZE], BoatLocation shot, char res
         boats[hitBoatIndex].isDestroyed = 1; // Mark the boat as destroyed
         board[shot.row][shot.col] = 'D';     // Use 'D' for destroyed boat
     }
+    else if (result == 'M')
+    {
+        board[shot.row][shot.col] = 'O'; // Use 'O' for hit
+    }
     else
     {
-        // Check if the shot is a miss
-        if (result == 'M')
-        {
-            board[shot.row][shot.col] = 'X'; // Use 'X' for miss
-        }
-        else
-        {
-            board[shot.row][shot.col] = 'O'; // Use 'O' for hit
-        }
+        board[shot.row][shot.col] = 'X'; // Use 'X' for miss
     }
 }
 
@@ -243,45 +239,32 @@ void getShotLocation(BoatLocation *shot)
         }
     } while (shot->row < 0 || shot->row >= BOARD_SIZE || shot->col < 0 || shot->col >= BOARD_SIZE);
 }
-
+static int firstRound = 0;
 void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], char player2EnemyBoard[BOARD_SIZE][BOARD_SIZE], BoatLocation player2Boats[BOAT_NUMBER])
 {
     char turnDone[256] = "TURN_DONE";
+    if (firstRound >= 1)
+    {
+        printf("Player 2 send turn_done\n");
+        send(client_socket, turnDone, sizeof(turnDone), 0);
+    }
     printf("Player 2 is waiting for Player 1's shot...\n");
     displayBoards(player2Board, player2EnemyBoard);
+    BoatLocation player1Shot = {0};
+    recv(client_socket, &player1Shot, sizeof(player1Shot), 0);
 
-    BoatLocation player1Shot;
-    BoatLocation player2Shot;
-
-    ssize_t recv_result = recv(client_socket, &player1Shot, sizeof(player1Shot), 0);
-    if (recv_result == -1 || recv_result == 0)
-    {
-        perror("Error receiving shot from Player 1");
-        close(client_socket);
-        exit(EXIT_FAILURE);
-    }
+    printf("Player 2 Received: Shot from Player 1 (row=%lld, col=%lld)\n", player1Shot.row, player1Shot.col);
 
     ShotResult player1Result = processShot(player1Shot, player2Boats, BOAT_NUMBER);
 
-    updateBoard(player2Board, player2Shot, player1Result.result, player2Boats, BOARD_SIZE);
-    ssize_t send_result = send(client_socket, &player1Result, sizeof(player1Result), 0);
-    if (send_result == -1)
-    {
-        perror("Error sending result to Player 1");
-        close(client_socket);
-        exit(EXIT_FAILURE);
-    }
-
+    updateBoard(player2Board, player1Shot, player1Result.result, player2Boats, BOARD_SIZE);
+    send(client_socket, &player1Result, sizeof(player1Result), 0);
     // Wait for Player 1 to complete their turn
     printf("Player 2 is waiting for Player 1 to complete the turn...\n");
-    ssize_t recv_turn_done = recv(client_socket, turnDone, sizeof(turnDone), 0);
-    if (recv_turn_done == -1 || recv_turn_done == 0)
-    {
-        perror("Error receiving turn completion signal from Player 1");
-        close(client_socket);
-        exit(EXIT_FAILURE);
-    }
+    recv(client_socket, turnDone, sizeof(turnDone), 0);
+
     printf("Player 2, it's your turn:\n");
+    BoatLocation player2Shot = {0};
     getShotLocation(&player2Shot);
     send(client_socket, &player2Shot, sizeof(player2Shot), 0);
 
@@ -290,20 +273,6 @@ void player2Turn(int client_socket, char player2Board[BOARD_SIZE][BOARD_SIZE], c
 
     // Update Player 1's enemy board based on the result
     updateBoard(player2EnemyBoard, player2Shot, player2Result.result, player2Boats, BOAT_NUMBER);
-
-    if (player2Result.result == 'D')
-    {
-        printf("Player 1: You destroyed an enemy boat!\n");
-    }
-    else if (player2Result.result == 'O')
-    {
-        printf("Player 1: You hit an enemy boat!\n");
-    }
-    else
-    {
-        printf("Player 1: You missed!\n");
-    }
-
     // Signal to Player 2 that Player 1 has completed the turn
 
     send(client_socket, turnDone, sizeof(turnDone), 0);
